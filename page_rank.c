@@ -48,13 +48,14 @@ DATA lecture_matrix(DATA data)
          fscanf(fichier, "%d", &data.nbr_lignes);
          fscanf(fichier, "%d", &data.nbr_arcs);
 
-        data.F = malloc(sizeof(int)*data.nbr_lignes);     
+        data.F = malloc(sizeof(int)* data.nbr_lignes);     
 
-        double val = (1.0 - alpha)/(data.nbr_lignes*1.0);
+        //double val = (1.0 - alpha)/(data.nbr_lignes*1.0);
     
         data.les_listes = malloc(sizeof(LIST)* data.nbr_lignes);
 
-        for(int i = 1; i <= data.nbr_lignes; i++){
+        for(int i = 1; i <= data.nbr_lignes; i++)
+        {
             data.les_listes[i] = NULL;
         }
 
@@ -62,13 +63,14 @@ DATA lecture_matrix(DATA data)
             
              fscanf(fichier, "%ld", &origin);
              fscanf(fichier, "%ld", &degre);
+
                 if (degre == 0)
                 {
-                    data.F[i] = 1;
+                    data.F[(i-1)] = 1;
                 }
                 else 
                 {
-                    data.F[i] = 0;
+                    data.F[(i-1)] = 0;
                 }
                 
                 
@@ -84,6 +86,30 @@ DATA lecture_matrix(DATA data)
     }
     return data;
 } 
+
+void afficher_data(DATA data)
+{
+    LIST ptr;
+    for (size_t i = 0; i < data.nbr_lignes; i++)
+    {
+        
+        ptr = data.les_listes[i];
+        printf("HEY\n");
+
+        if(ptr != NULL)
+            printf("ligne numéro : %ld \n",ptr->origin);
+        while (ptr != NULL)
+        {
+            printf(" %f ",ptr->cout);
+
+            ptr = ptr->suivant;
+        }
+
+        printf("\n");
+           
+    }
+    
+}
 
 /*double* algo_puissance()
 {

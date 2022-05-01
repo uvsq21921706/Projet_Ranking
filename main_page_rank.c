@@ -9,7 +9,8 @@ int main ()
     
     les_donnees = lecture_matrix(les_donnees);
 
-    
+    //afficher_data(les_donnees);
+
 return 0;
 
 }
