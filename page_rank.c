@@ -1,7 +1,7 @@
 
 #include "page_rank.h"
 
-
+// initialise la structure à des valeurs par défaut et retourne la structure
 DATA init_DATA(DATA donnees)
 {
     donnees.les_listes = NULL;
@@ -12,6 +12,7 @@ DATA init_DATA(DATA donnees)
     return donnees;
 }
 
+// insére un nouvelle élement de la matrice à la structure de cette derniere 
 LIST ajouter_element(LIST l,long origin,double cout)
 {
     LIST tmp = malloc(sizeof(struct list));
@@ -31,6 +32,7 @@ LIST ajouter_element(LIST l,long origin,double cout)
     return l;
 }
 
+// initialise la structure représentant la matrice en meme temps que la lecture 
 DATA lecture_matrix(DATA data)
 {
 
@@ -50,7 +52,7 @@ DATA lecture_matrix(DATA data)
 
         data.F = malloc(sizeof(int)* data.nbr_lignes);     
 
-        //double val = (1.0 - alpha)/(data.nbr_lignes*1.0);
+        double val = (1.0 - alpha)/(data.nbr_lignes*1.0);
     
         data.les_listes = malloc(sizeof(LIST)* data.nbr_lignes);
 
@@ -87,6 +89,7 @@ DATA lecture_matrix(DATA data)
     return data;
 } 
 
+// afficher la matrice en parcourant la structure mémoire
 void afficher_data(DATA data)
 {
     LIST ptr;
@@ -111,15 +114,24 @@ void afficher_data(DATA data)
     
 }
 
+// initialiser un vecteur plus (vecteur Opi par exemple)
+void init_vecteur(double val,double *vecteur, int taille)
+{
+    for (int i=0; i<taille;i++){
+        vecteur[i] = val;
+    }
+}
+
 /*double* algo_puissance()
 {
 
 }*/
 
-/*double* produit_ligne_matrice()
+double* produit_ligne_matrice(double* vecteur,DATA data)
 {
-
-}*/
+    
+    return NULL;
+}
 
 /*void page_rank_cote_alpha( )
 {

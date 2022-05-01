@@ -6,6 +6,7 @@
 
 #define PATH "/home/user/Téléchargements/Ranking-projet/wb-cs-stanford.txt"
 #define alpha 0.85
+#define epsilon 1e-6
 
 
 // VERSION SALAH 
@@ -25,8 +26,9 @@ struct structure_creuse {
     int nbr_arcs; 
     LIST* les_listes;
     int* F; 
-    double* nabla; // le min d'une ligne 
-    double* delta;  // le max d'une ligne
+    //double* nabla; // le min d'une ligne 
+    //double* delta;  // le max d'une ligne
+    double* pi;
 
 };
 typedef struct structure_creuse DATA;
