@@ -36,9 +36,9 @@ LIST ajouter_element(LIST l,long origin,double cout)
 DATA lecture_matrix(DATA data)
 {
 
-    long origin;
-    long degre;
-    long destination;
+    int origin;
+    int degre;
+    int destination;
     double cout;
 
     FILE* fichier = fopen(PATH, "r");
@@ -63,8 +63,8 @@ DATA lecture_matrix(DATA data)
 
         for(int i = 0; i < data.nbr_lignes; i++){
             
-             fscanf(fichier, "%ld", &origin);
-             fscanf(fichier, "%ld", &degre);
+             fscanf(fichier, "%d", &origin);
+             fscanf(fichier, "%d", &degre);
 
                 if (degre == 0)
                 {
@@ -77,7 +77,7 @@ DATA lecture_matrix(DATA data)
                 
                 
             for(int j = 0; j < degre; j++){
-                fscanf(fichier, "%ld", &destination);
+                fscanf(fichier, "%d", &destination);
                 fscanf(fichier, "%lf", &cout);
                 data.les_listes[destination-1] = ajouter_element(data.les_listes[destination-1],origin,cout); 
             }
@@ -103,7 +103,7 @@ void afficher_Data(DATA les_donnees){
         for(int i=1 ; i <= les_donnees.nbr_lignes; i++){
             tmp = les_donnees.les_listes[i];
             while(tmp != NULL){
-                printf(" (%d , %d , %f) ",tmp->origin,i+1,tmp->cout);
+                printf(" (%d , %d , %lf) ",tmp->origin,i+1,tmp->cout);
                 tmp = tmp->suivant;
             }
             printf("\n");
@@ -174,6 +174,7 @@ void liberer_DATA(DATA les_donnees){
         }
         free(les_donnees.les_listes);
     }
+}
 
 /*void page_rank_cote_alpha( )
 {

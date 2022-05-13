@@ -12,7 +12,7 @@
 // VERSION SALAH 
 struct list{
 
-    long origin;
+    int origin;
     double cout;
     struct list* suivant;
 
