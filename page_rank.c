@@ -56,30 +56,30 @@ DATA lecture_matrix(DATA data)
     
         data.les_listes = malloc(sizeof(LIST)* data.nbr_lignes);
 
-        for(int i = 1; i <= data.nbr_lignes; i++)
+        for(int i = 0; i < data.nbr_lignes; i++)
         {
             data.les_listes[i] = NULL;
         }
 
-        for(int i = 1; i <= data.nbr_lignes; i++){
+        for(int i = 0; i < data.nbr_lignes; i++){
             
              fscanf(fichier, "%ld", &origin);
              fscanf(fichier, "%ld", &degre);
 
                 if (degre == 0)
                 {
-                    data.F[(i-1)] = 1;
+                    data.F[i] = 1;
                 }
                 else 
                 {
-                    data.F[(i-1)] = 0;
+                    data.F[i] = 0;
                 }
                 
                 
             for(int j = 0; j < degre; j++){
                 fscanf(fichier, "%ld", &destination);
                 fscanf(fichier, "%lf", &cout);
-                data.les_listes[destination] = ajouter_element(data.les_listes[destination],origin,cout); 
+                data.les_listes[destination-1] = ajouter_element(data.les_listes[destination-1],origin,cout); 
             }
 
         }
@@ -121,6 +121,16 @@ void init_vecteur(double val,double *vecteur, int taille)
         vecteur[i] = val;
     }
 }
+// produit vecteur ligne et vecteur colonne 
+double produit_vect_ligne_par_vect_colonne (double *x,DATA data)
+{
+    double resultat=0; 
+    
+    for (int i=0;i<data.nbr_lignes;i++){
+        resultat+= x[i] *  data.F[i]*1.0;
+    }
+    return resultat;
+}
 
 /*double* algo_puissance()
 {
@@ -136,7 +146,7 @@ double* produit_ligne_matrice(double* vecteur,DATA data)
     {
         res_tmp = 0;
         ptr = data.les_listes[i];
-        
+       
         while (ptr != NULL)
         {
             res_tmp = res_tmp + ( ptr->cout * vecteur[ptr->origin-1]);
