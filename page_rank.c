@@ -129,8 +129,22 @@ void init_vecteur(double val,double *vecteur, int taille)
 
 double* produit_ligne_matrice(double* vecteur,DATA data)
 {
-    
-    return NULL;
+    double res_tmp = 0; // variable intermédiaire
+    double* vecteur_res = calloc(data.nbr_lignes,sizeof(double)); // le vecteur resultat
+    LIST ptr = NULL; // pointeur permet de parcourir les différenetes listes (colonnes) de la structure
+    for (size_t i = 0; i < data.nbr_lignes; i++)
+    {
+        res_tmp = 0;
+        ptr = data.les_listes[i];
+        
+        while (ptr != NULL)
+        {
+            res_tmp = res_tmp + ( ptr->cout * vecteur[ptr->origin-1]);
+            ptr = ptr->suivant;
+        }
+        vecteur_res[i] = res_tmp;   
+    }
+    return vecteur_res;
 }
 
 /*void page_rank_cote_alpha( )

@@ -4,7 +4,7 @@
 #include "math.h"
 #include "string.h"
 
-#define PATH "/home/user/Téléchargements/Ranking-projet/wb-cs-stanford.txt"
+#define PATH "/home/user/Téléchargements/Ranking-projet/matrice_test.txt"
 #define alpha 0.85
 #define epsilon 1e-6
 
