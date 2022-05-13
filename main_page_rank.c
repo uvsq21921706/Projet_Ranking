@@ -21,31 +21,19 @@ int main ()
         printf("    %lf    ",les_donnees.pi[i]);
         
     }
-        printf("\n\n");
-    /*
-        teste dE LA MÉTHODE PRODUIT LIGNE MATRICE
     
-    double* vecteur_tmp = produit_ligne_matrice(les_donnees.pi,les_donnees);
+    printf("\n\n");
+    
+    double * tmp3 = PG_google(les_donnees);
 
-    //afficher le vecteur Pi aprés multiplication par la matrice   
+    // afficher le vecteur de pertinence
     for (size_t i = 0; i < les_donnees.nbr_lignes; i++)
     {
-        printf("    %lf    ",vecteur_tmp2[i]);
-       
+        printf("    %lf    ",tmp3[i]);
+        
     }
-    printf("\n");*/
+        printf("\n");
 
-    //AFFICHER LE VECTEUR F
-    for (size_t i = 0; i < les_donnees.nbr_lignes; i++)
-    {
-        printf("    %d    ",les_donnees.F[i]);
-       
-    }
-    printf("\n");
-    
-    double tmp2 = produit_vect_ligne_par_vect_colonne(les_donnees.pi,les_donnees);
-
-    printf("LA VALEUR DU PRODUIT : %lf\n",tmp2);
 return 0;
 
 }

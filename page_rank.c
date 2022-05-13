@@ -114,6 +114,12 @@ void afficher_data(DATA data)
     
 }
 
+// retourne la valeur absolue d'un double
+double valeur_absolue(double x)
+{
+    return (x<0)?(-x):x;
+}
+
 // initialiser un vecteur plus (vecteur Opi par exemple)
 void init_vecteur(double val,double *vecteur, int taille)
 {
@@ -132,11 +138,7 @@ double produit_vect_ligne_par_vect_colonne (double *x,DATA data)
     return resultat;
 }
 
-/*double* algo_puissance()
-{
-
-}*/
-
+// produit ligne matrice retourne un vecteur ligne
 double* produit_ligne_matrice(double* vecteur,DATA data)
 {
     double res_tmp = 0; // variable intermédiaire
@@ -156,6 +158,70 @@ double* produit_ligne_matrice(double* vecteur,DATA data)
     }
     return vecteur_res;
 }
+
+// test de convergence (condition d'arret de pageRank)
+int Convergence(DATA data, double *y){
+    double somme=0.0;
+    for(int i=0; i<data.nbr_lignes; i++)
+    {
+        somme +=valeur_absolue(data.pi[i] - y[i]); 
+    }
+
+    //printf("%.9lf", som);
+    if (somme<epsilon)
+        return 1;
+    // Retourne 1 SI "som<epsilon" ET 0 SINON
+  
+    return 0;
+    
+}
+
+// l'algo de pageRank version google 
+double* PG_google (DATA data)
+{
+    double *vect_x; 
+    int n=1;
+    
+    vect_x = produit_ligne_matrice(data.pi,data);
+     
+    // xG = αxP + [(1 − α)(1/N) + α(1/N)(x*ft)]e
+
+    double val_1 = (1.0 - alpha)/ (data.nbr_lignes * 1.0);
+    double val_2 = alpha / (data.nbr_lignes * 1.0);
+    double resutlat_mult_des_vect= produit_vect_ligne_par_vect_colonne(data.pi,data);
+    double constante = (val_1 + (val_2 * resutlat_mult_des_vect) );
+    
+    for(int i = 0; i < data.nbr_lignes; i++){
+        vect_x[i] = (vect_x[i] * alpha) + constante;
+    }
+    
+    while (!Convergence(data,vect_x))
+    {   
+        n++;
+        free(data.pi);
+
+        data.pi=vect_x; 
+        vect_x = produit_ligne_matrice(data.pi,data);
+
+        // xG = αxP + [(1 − α)(1/N) + α(1/N)(x*ft)]e
+
+        resutlat_mult_des_vect= produit_vect_ligne_par_vect_colonne(data.pi,data);
+        constante = (val_1 + (val_2 * resutlat_mult_des_vect));
+
+        for(int i = 0; i < data.nbr_lignes; i++){
+        vect_x[i] = (vect_x[i] * alpha) + constante;
+    }
+    }
+    
+    printf("\nNbre d'itérations: %d ", n);
+    return vect_x;
+
+}
+
+/*double* algo_puissance()
+{
+
+}*/
 
 /*void page_rank_cote_alpha( )
 {
