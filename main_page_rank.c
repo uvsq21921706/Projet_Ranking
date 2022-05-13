@@ -24,7 +24,7 @@ int main ()
     
     printf("\n\n");
     
-    double * tmp3 = PG_google(les_donnees);
+    float * tmp3 = PG_google(les_donnees);
 
     // afficher le vecteur de pertinence
     for (size_t i = 0; i < les_donnees.nbr_lignes; i++)

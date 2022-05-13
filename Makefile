@@ -13,4 +13,5 @@ page_rank.o : page_rank.h
 	
 clean : 
 	rm *.o
-	rm -f PG
+	rm -f PG.exe
+	rm -f PG 

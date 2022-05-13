@@ -12,8 +12,8 @@
 // VERSION SALAH 
 struct list{
 
-    long origin;
-    double cout;
+    int origin;
+    float cout;
     struct list* suivant;
 
 };
@@ -26,16 +26,22 @@ struct structure_creuse {
     int nbr_arcs; 
     LIST* les_listes;
     int* F; 
-    //double* nabla; // le min d'une ligne 
-    //double* delta;  // le max d'une ligne
-    double* pi;
+    //float* nabla; // le min d'une ligne 
+    //float* delta;  // le max d'une ligne
+    float* pi;
 
 };
 typedef struct structure_creuse DATA;
 
-LIST ajouter_element(LIST l,long origin,double cout);
+LIST ajouter_element(LIST l,int origin,float cout);
 
 DATA lecture_matrix(DATA);
 
 DATA init_DATA(DATA donnee);
+
+void liberer_DATA(DATA les_donnees);
+
+void afficher_Data(DATA les_donnees);
+
+float* PG_google (DATA data);
 
