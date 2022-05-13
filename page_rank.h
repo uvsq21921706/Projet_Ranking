@@ -39,3 +39,7 @@ DATA lecture_matrix(DATA);
 
 DATA init_DATA(DATA donnee);
 
+void liberer_DATA(DATA les_donnees);
+
+void afficher_Data(DATA les_donnees);
+

@@ -89,29 +89,25 @@ DATA lecture_matrix(DATA data)
     return data;
 } 
 
-// afficher la matrice en parcourant la structure mémoire
-void afficher_data(DATA data)
-{
-    LIST ptr;
-    for (size_t i = 0; i < data.nbr_lignes; i++)
-    {
-        
-        ptr = data.les_listes[i];
-        printf("HEY\n");
+// Affichage de DATA
+void afficher_Data(DATA les_donnees){
 
-        if(ptr != NULL)
-            printf("ligne numéro : %ld \n",ptr->origin);
-        while (ptr != NULL)
-        {
-            printf(" %f ",ptr->cout);
-
-            ptr = ptr->suivant;
+    printf("***********************************************************\n");
+    printf("\n\n");
+    printf("Le nombre de ligne : %d\n",les_donnees.nbr_lignes);
+    printf("Le nombre d'arc : %d\n",les_donnees.nbr_arcs);
+    printf("\n\n");
+    printf("***********************LES ARCS****************************\n");
+    printf("\n\n");
+    LIST tmp;
+        for(int i=1 ; i <= les_donnees.nbr_lignes; i++){
+            tmp = les_donnees.les_listes[i];
+            while(tmp != NULL){
+                printf(" (%d , %d , %f) ",tmp->origin,i+1,tmp->cout);
+                tmp = tmp->suivant;
+            }
+            printf("\n");
         }
-
-        printf("\n");
-           
-    }
-    
 }
 
 // initialiser un vecteur plus (vecteur Opi par exemple)
@@ -156,6 +152,28 @@ double* produit_ligne_matrice(double* vecteur,DATA data)
     }
     return vecteur_res;
 }
+
+//Liberer une liste
+void liberer_liste(LIST l){
+        LIST tmp;
+        while(l){
+            tmp = l;
+            l = l->suivant;
+            free(tmp);
+        }
+}
+
+//liberer DATA
+void liberer_DATA(DATA les_donnees){
+    if(les_donnees.les_listes){
+        for(int i ; i  <= les_donnees.nbr_lignes; i++){
+            if(les_donnees.les_listes[i]){
+                liberer_liste(les_donnees.les_listes[i]);
+                free(les_donnees.les_listes[i]);
+            }
+        }
+        free(les_donnees.les_listes);
+    }
 
 /*void page_rank_cote_alpha( )
 {
