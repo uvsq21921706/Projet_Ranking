@@ -260,11 +260,11 @@ float* produit_ligne_matrice(float* vecteur,DATA data)
 
 
 // test de convergence (condition d'arret de pageRank)
-int Convergence(DATA data, float *y){
+int Convergence(DATA data, float *y,float* pi){
     float somme=0.0;
     for(int i=0; i<data.nbr_lignes; i++)
     {
-        somme +=valeur_absolue(data.pi[i] - y[i]); // Calcul de la valeur absolue
+        somme +=valeur_absolue(pi[i] - y[i]); // Calcul de la valeur absolue
     }
     if (somme<epsilon)
         return 1;
@@ -304,7 +304,7 @@ float* PG_google (DATA data)
     }
     
     // La boucle tant que 
-    while (!Convergence(data,vect_x)) 
+    while (!Convergence(data,vect_x,data.pi)) 
     {   
         n++;
         free(data.pi);
@@ -336,6 +336,21 @@ void liberer_liste(LIST l){
         }
 }
 
+
+// retourne le minimum
+double minimum(double x, double y){
+    return (x<y)?(x):y;
+}
+
+float norme_UN(float* vect,DATA data)
+{
+    double somme=0.0;
+
+    for(int i=0; i<data.nbr_lignes; i++){
+        somme+= valeur_absolue(vect[i]);
+    }
+    return somme;
+}
 //liberer DATA
 void liberer_DATA(DATA les_donnees){
     if(les_donnees.delta) free(les_donnees.delta);
@@ -353,11 +368,128 @@ void liberer_DATA(DATA les_donnees){
     }
 }
 
-/*void page_rank_cote_alpha( )
+// retourne le maximum
+double maximum(double x, double y){
+    return (x<y)?(y):x;
+}
+
+float* calculXK(DATA data,float* x_k)
 {
-    //calculer les constantes et la multiplication de vecteur ligne par 
-    // vecteur colonne = valeur et faire la somme avec les constantes et 
-    // le produit (alpha*P*x)
-}*/
+    float norme_x = norme_UN(x_k,data);
+
+    // vect_x = xP
+    //float* vect_x = produit_ligne_matrice(x_k,data); 
+    
+    float* vect_x = malloc(sizeof(float)*data.nbr_lignes);
+    
+    // val_1 = (1 − α)(1/N)
+    float val_1 = (1.0 - alpha)/ (data.nbr_lignes * 1.0); 
+
+    // val_2 = α(1/N)
+    float val_2 = alpha / (data.nbr_lignes * 1.0); 
+
+    // resutlat_mult_des_vect = (x*ft)
+    float resutlat_mult_des_vect = produit_vect_ligne_par_vect_colonne(x_k,data);
+
+    float constante = (val_1 * norme_x) + (val_2 * resutlat_mult_des_vect);
+
+    float resultat_colonne,res1;
+
+    for(int i = 0; i < data.nbr_lignes; i++)
+    {
+        resultat_colonne = 0;
+        LIST ptr = data.les_listes[i];
+
+        while (ptr)
+        {
+            resultat_colonne =  resultat_colonne + (ptr->cout * x_k[ptr->origin]);
+            ptr = ptr->suivant;
+        }
+
+        res1 = alpha * resultat_colonne + constante + data.nabla[i]* (1.0 - norme_x);
+
+        vect_x[i] = maximum(x_k[i],res1);
+    }
+
+    return vect_x;
+}
+
+float* calculYK(DATA data,float* y_k)
+{
+    float norme_y = norme_UN(y_k,data);
+
+    // vect_x = xP
+    //float* vect_y = produit_ligne_matrice(y_k,data); 
+    float* vect_y = malloc(sizeof(float)*data.nbr_lignes);
+    // val_1 = (1 − α)(1/N)
+    float val_1 = (1.0 - alpha)/ (data.nbr_lignes * 1.0); 
+
+    // val_2 = α(1/N)
+    float val_2 = alpha / (data.nbr_lignes * 1.0); 
+
+    // resutlat_mult_des_vect = (x*ft)
+    float resutlat_mult_des_vect = produit_vect_ligne_par_vect_colonne(y_k,data);
+
+    float constante = (val_1 * norme_y) + (val_2 * resutlat_mult_des_vect);
+
+    float resultat_colonne,res1;
+
+    for(int i = 0; i < data.nbr_lignes; i++)
+    {
+        resultat_colonne = 0;
+        LIST ptr = data.les_listes[i];
+
+        while (ptr)
+        {
+            resultat_colonne =  resultat_colonne + (ptr->cout * y_k[ptr->origin]);
+            ptr = ptr->suivant;
+        }
+
+        res1 = alpha * resultat_colonne + constante + data.nabla[i]* (1.0 - norme_y);
+
+        vect_y[i] = minimum(y_k[i],res1);
+    }
+
+    return vect_y;
+    
+}
+
+void page_rank_nabla(DATA data)
+{
+    float* x_k =  malloc(sizeof(float)*data.nbr_lignes);
+    float* y_k = malloc(sizeof(float)*data.nbr_lignes);
+    
+    for (size_t i = 0; i < data.nbr_lignes; i++)
+    {
+        x_k[i] = data.nabla[i];
+        y_k[i] = data.delta[i];
+    }
+    int co = 0;
+    while (!Convergence(data,x_k,y_k))
+    {
+        x_k = calculXK(data,x_k);
+        y_k = calculYK(data,y_k);
+
+        if (co < 1)
+        {
+            printf("le x_k : \n");
+            for (size_t i = 0; i < data.nbr_lignes; i++)
+            {
+                printf(" %f ",x_k[i]);
+            }
+            printf("\n\n");
+
+            printf("le y_k : \n");
+            for (size_t i = 0; i < data.nbr_lignes; i++)
+            {
+                printf(" %f ",y_k[i]);
+            }
+            printf("\n\n");
+        }
+        
+        co ++;
+    }
+    
+}
 
 
