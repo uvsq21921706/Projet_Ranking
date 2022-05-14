@@ -18,6 +18,9 @@ DATA init_DATA(DATA donnees)
 LIST ajouter_element(LIST l,int origin,float cout)
 {
     LIST tmp = malloc(sizeof(struct list));
+    if (tmp == NULL){
+        exit(EXIT_FAILURE);
+    }
     tmp->origin = origin;
     tmp->cout = cout;
     tmp->suivant = NULL;
@@ -38,6 +41,9 @@ LIST ajouter_element(LIST l,int origin,float cout)
 DATA init_nabla(DATA data)
 {
     data.nabla  = malloc(sizeof(float)* data.nbr_lignes);
+    if (data.nabla == NULL){
+        exit(EXIT_FAILURE);
+    }
 
     for (size_t i = 0; i < data.nbr_lignes; i++)
     {
@@ -52,24 +58,64 @@ DATA init_nabla(DATA data)
 DATA init_delta(DATA data)
 {
     data.delta  = malloc(sizeof(float)* data.nbr_lignes);
+    if (data.delta == NULL){
+        exit(EXIT_FAILURE);
+    }
 
     for (size_t i = 0; i < data.nbr_lignes; i++)
     {
         data.delta[i] =0.0;
     }
 
+    return data; 
+}
+
+// initialiser le vecteur F
+DATA init_F(DATA data)
+{
+    data.F = malloc(sizeof(int)* data.nbr_lignes);
+    if (data.F == NULL){
+        exit(EXIT_FAILURE);
+    }
+
+    for (size_t i = 0; i < data.nbr_lignes; i++)
+    {
+        data.F[i] = 1;
+    }
+
     return data;
     
 }
+
+// initialiser les listes
+DATA init_les_listes(DATA data)
+{
+    data.les_listes = malloc(sizeof(LIST)* data.nbr_lignes);
+    if (data.les_listes == NULL){
+        exit(EXIT_FAILURE);
+    }
+
+        for(int i = 0; i < data.nbr_lignes; i++)
+        {
+            data.les_listes[i] = NULL;
+        }
+
+    return data;
+    
+}
+
 // initialise la structure représentant la matrice en meme temps que la lecture 
 DATA lecture_matrix(DATA data)
 {
+
     int* f_delta = malloc(sizeof(int)*data.nbr_lignes);
+    if (f_delta == NULL){
+        exit(EXIT_FAILURE);
+    }
     int origin;
     int degre;
     int destination;
     float cout;
-    int num_ligne_max;
 
     FILE* fichier = fopen(PATH, "r");
      
@@ -77,33 +123,26 @@ DATA lecture_matrix(DATA data)
      if(fichier != NULL)
      {
 
-        fscanf(fichier, "%d", &data.nbr_lignes);
-        fscanf(fichier, "%d", &data.nbr_arcs);
+        fscanf(fichier, "%d", &data.nbr_lignes); // récuperer le nombre de sommets
+        fscanf(fichier, "%d", &data.nbr_arcs); // récupérer le nombre d'arcs
 
-        init_nabla(data);
+        data = init_F(data);
+        data = init_les_listes(data);
+        data = init_nabla(data);
         data = init_delta(data);
-
-        data.F = malloc(sizeof(int)* data.nbr_lignes);     
-    
-        data.les_listes = malloc(sizeof(LIST)* data.nbr_lignes);
-
-        for(int i = 0; i < data.nbr_lignes; i++)
-        {
-            data.les_listes[i] = NULL;
-        }
 
         for(int i = 0; i < data.nbr_lignes; i++){
             
-             fscanf(fichier, "%d", &origin);
-             fscanf(fichier, "%d", &degre);
+             fscanf(fichier, "%d", &origin); // récuperer la ligne
+             fscanf(fichier, "%d", &degre); // récupérer le degré de la ligne
                 
                 if (degre == 0)
                 {
-                    data.F[i] = 1;
+                    data.F[i] = 1; // degré sortant NULL
                 }
                 else 
                 {
-                    data.F[i] = 0;
+                    data.F[i] = 0; // degré sortant NON NULL
                 }
                 
             for(int j = 0; j < degre; j++)
@@ -113,31 +152,33 @@ DATA lecture_matrix(DATA data)
                 
                 if (data.delta[destination-1] < cout)
                 {
-                    data.delta[destination-1] = cout ;
-                    f_delta[destination-1] = origin;
+                    data.delta[destination-1] = cout ; // stocker le max de chaque ligne de la matrice stochastique
+                    f_delta[destination-1] = origin-1; // stocker la ligne où on a trouvé le max
                 }
 
-                data.les_listes[destination-1] = ajouter_element(data.les_listes[destination-1],origin,cout); 
+                data.les_listes[destination-1] = ajouter_element(data.les_listes[destination-1],origin-1,cout); 
             }
         }
 
         for(int i=0; i<data.nbr_lignes;i++)
         {
-        num_ligne_max= f_delta[i];
-        data.delta[i]= alpha *data.delta[i] + data.F[num_ligne_max]*(alpha/data.nbr_lignes) + ((1.0-alpha)/data.nbr_lignes);
-        
-        //if(data.F[]){
+            // MAX(G) = MAX(αP) + MAX((α/N)(ft*e)) + MAX((1-α)(et*e))
+            data.delta[i]= alpha *data.delta[i] + data.F[f_delta[i]]*(alpha/data.nbr_lignes) + ((1.0-alpha)/data.nbr_lignes);
+       
+            // Le cas où le degré est NULL 
             if(data.delta[i]<1.0/data.nbr_lignes)
             {
-                data.delta[i]=1.0/data.nbr_lignes;
+                data.delta[i]=1.0/data.nbr_lignes;  // On remplace par 1/N
             }
-        //}
         }
         fclose(fichier);
     }
     free(f_delta);
     return data;
 } 
+
+
+
 
 // Affichage de DATA
 void afficher_Data(DATA les_donnees){
@@ -160,11 +201,16 @@ void afficher_Data(DATA les_donnees){
         }
 }
 
+
+
+
 // retourne la valeur absolue d'un float
 float valeur_absolue(float x)
 {
     return (x<0)?(-x):x;
 }
+
+
 
 // initialiser un vecteur plus (vecteur Opi par exemple)
 void init_vecteur(float val,float *vecteur, int taille)
@@ -173,6 +219,9 @@ void init_vecteur(float val,float *vecteur, int taille)
         vecteur[i] = val;
     }
 }
+
+
+
 // produit vecteur ligne et vecteur colonne 
 float produit_vect_ligne_par_vect_colonne (float *x,DATA data)
 {
@@ -183,6 +232,8 @@ float produit_vect_ligne_par_vect_colonne (float *x,DATA data)
     }
     return resultat;
 }
+
+
 
 // produit ligne matrice retourne un vecteur ligne
 float* produit_ligne_matrice(float* vecteur,DATA data)
@@ -205,15 +256,16 @@ float* produit_ligne_matrice(float* vecteur,DATA data)
     return vecteur_res;
 }
 
+
+
+
 // test de convergence (condition d'arret de pageRank)
 int Convergence(DATA data, float *y){
     float somme=0.0;
     for(int i=0; i<data.nbr_lignes; i++)
     {
-        somme +=valeur_absolue(data.pi[i] - y[i]); 
+        somme +=valeur_absolue(data.pi[i] - y[i]); // Calcul de la valeur absolue
     }
-
-    //printf("%.9f", som);
     if (somme<epsilon)
         return 1;
     // Retourne 1 SI "som<epsilon" ET 0 SINON
@@ -227,21 +279,32 @@ float* PG_google (DATA data)
 {
     float *vect_x; 
     int n=1;
-    
-    vect_x = produit_ligne_matrice(data.pi,data);
      
     // xG = αxP + [(1 − α)(1/N) + α(1/N)(x*ft)]e
 
-    float val_1 = (1.0 - alpha)/ (data.nbr_lignes * 1.0);
-    float val_2 = alpha / (data.nbr_lignes * 1.0);
-    float resutlat_mult_des_vect= produit_vect_ligne_par_vect_colonne(data.pi,data);
+    // #############   DETAIL DE CALCUL ############
+
+    // vect_x = xP
+    vect_x = produit_ligne_matrice(data.pi,data); 
+    
+    // val_1 = (1 − α)(1/N)
+    float val_1 = (1.0 - alpha)/ (data.nbr_lignes * 1.0); 
+
+    // val_2 = α(1/N)
+    float val_2 = alpha / (data.nbr_lignes * 1.0); 
+
+    // resutlat_mult_des_vect = (x*ft)
+    float resutlat_mult_des_vect = produit_vect_ligne_par_vect_colonne(data.pi,data);
+
+    // constante = [(1 − α)(1/N) + α(1/N)(x*ft)]e
     float constante = (val_1 + (val_2 * resutlat_mult_des_vect) );
     
     for(int i = 0; i < data.nbr_lignes; i++){
-        vect_x[i] = (vect_x[i] * alpha) + constante;
+        vect_x[i] = (vect_x[i] * alpha) + constante; // xG = αxP + [(1 − α)(1/N) + α(1/N)(x*ft)]e (1 ére itération)
     }
     
-    while (!Convergence(data,vect_x))
+    // La boucle tant que 
+    while (!Convergence(data,vect_x)) 
     {   
         n++;
         free(data.pi);
@@ -259,7 +322,6 @@ float* PG_google (DATA data)
     }
     }
     
-    printf("\nNbre d'itérations: %d ", n);
     return vect_x;
 
 }
@@ -276,6 +338,10 @@ void liberer_liste(LIST l){
 
 //liberer DATA
 void liberer_DATA(DATA les_donnees){
+    if(les_donnees.delta) free(les_donnees.delta);
+    if(les_donnees.nabla) free(les_donnees.nabla);
+    if(les_donnees.F) free(les_donnees.F);
+    if(les_donnees.pi) free(les_donnees.pi);
     if(les_donnees.les_listes){
         for(int i ; i  <= les_donnees.nbr_lignes; i++){
             if(les_donnees.les_listes[i]){
