@@ -5,6 +5,8 @@
 DATA init_DATA(DATA donnees)
 {
     donnees.les_listes = NULL;
+    donnees.nabla = NULL;
+    donnees.delta = NULL;
     donnees.F = NULL;
     donnees.nbr_lignes = 0;
     donnees.nbr_arcs = 0;
@@ -32,14 +34,42 @@ LIST ajouter_element(LIST l,int origin,float cout)
     return l;
 }
 
+// initialiser le nabla
+DATA init_nabla(DATA data)
+{
+    data.nabla  = malloc(sizeof(float)* data.nbr_lignes);
+
+    for (size_t i = 0; i < data.nbr_lignes; i++)
+    {
+        data.nabla[i] =(1.0 - alpha)/(data.nbr_lignes*1.0);
+    }
+
+    return data;
+    
+}
+
+// initialiser le delta
+DATA init_delta(DATA data)
+{
+    data.delta  = malloc(sizeof(float)* data.nbr_lignes);
+
+    for (size_t i = 0; i < data.nbr_lignes; i++)
+    {
+        data.delta[i] =0.0;
+    }
+
+    return data;
+    
+}
 // initialise la structure représentant la matrice en meme temps que la lecture 
 DATA lecture_matrix(DATA data)
 {
-
+    int* f_delta = malloc(sizeof(int)*data.nbr_lignes);
     int origin;
     int degre;
     int destination;
     float cout;
+    int num_ligne_max;
 
     FILE* fichier = fopen(PATH, "r");
      
@@ -47,12 +77,13 @@ DATA lecture_matrix(DATA data)
      if(fichier != NULL)
      {
 
-         fscanf(fichier, "%d", &data.nbr_lignes);
-         fscanf(fichier, "%d", &data.nbr_arcs);
+        fscanf(fichier, "%d", &data.nbr_lignes);
+        fscanf(fichier, "%d", &data.nbr_arcs);
+
+        init_nabla(data);
+        data = init_delta(data);
 
         data.F = malloc(sizeof(int)* data.nbr_lignes);     
-
-        float val = (1.0 - alpha)/(data.nbr_lignes*1.0);
     
         data.les_listes = malloc(sizeof(LIST)* data.nbr_lignes);
 
@@ -65,7 +96,7 @@ DATA lecture_matrix(DATA data)
             
              fscanf(fichier, "%d", &origin);
              fscanf(fichier, "%d", &degre);
-
+                
                 if (degre == 0)
                 {
                     data.F[i] = 1;
@@ -75,17 +106,36 @@ DATA lecture_matrix(DATA data)
                     data.F[i] = 0;
                 }
                 
-                
-            for(int j = 0; j < degre; j++){
+            for(int j = 0; j < degre; j++)
+            {
                 fscanf(fichier, "%d", &destination);
                 fscanf(fichier, "%f", &cout);
+                
+                if (data.delta[destination-1] < cout)
+                {
+                    data.delta[destination-1] = cout ;
+                    f_delta[destination-1] = origin;
+                }
+
                 data.les_listes[destination-1] = ajouter_element(data.les_listes[destination-1],origin,cout); 
             }
-
         }
+
+        for(int i=0; i<data.nbr_lignes;i++)
+        {
+        num_ligne_max= f_delta[i];
+        data.delta[i]= alpha *data.delta[i] + data.F[num_ligne_max]*(alpha/data.nbr_lignes) + ((1.0-alpha)/data.nbr_lignes);
         
+        //if(data.F[]){
+            if(data.delta[i]<1.0/data.nbr_lignes)
+            {
+                data.delta[i]=1.0/data.nbr_lignes;
+            }
+        //}
+        }
         fclose(fichier);
     }
+    free(f_delta);
     return data;
 } 
 

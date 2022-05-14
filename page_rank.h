@@ -26,12 +26,12 @@ struct structure_creuse {
     int nbr_arcs; 
     LIST* les_listes;
     int* F; 
-    //float* nabla; // le min d'une ligne 
-    //float* delta;  // le max d'une ligne
     float* pi;
-
+    float* nabla; // le min d'une ligne 
+    float* delta;  // le max d'une ligne
 };
 typedef struct structure_creuse DATA;
+
 
 LIST ajouter_element(LIST l,int origin,float cout);
 

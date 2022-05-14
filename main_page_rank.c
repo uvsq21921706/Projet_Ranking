@@ -29,7 +29,7 @@ int main ()
     // afficher le vecteur de pertinence
     for (size_t i = 0; i < les_donnees.nbr_lignes; i++)
     {
-        printf("    %lf    ",tmp3[i]);
+        printf("    %lf    ",les_donnees.delta[i]);
         
     }
         printf("\n");
