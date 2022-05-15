@@ -163,8 +163,10 @@ DATA lecture_matrix(DATA data)
         for(int i=0; i<data.nbr_lignes;i++)
         {
             // MAX(G) = MAX(αP) + MAX((α/N)(ft*e)) + MAX((1-α)(et*e))
-            data.delta[i]= alpha *data.delta[i] + data.F[f_delta[i]]*(alpha/data.nbr_lignes) + ((1.0-alpha)/data.nbr_lignes);
-       
+            data.delta[i] = alpha * data.delta[i] + data.F[f_delta[i]] * (alpha/data.nbr_lignes) + ((1.0-alpha)/data.nbr_lignes);
+            
+            //printf("delta %d : %f\n", i, data.delta[i]);
+            
             // Le cas où le degré est NULL 
             if(data.delta[i]<1.0/data.nbr_lignes)
             {
@@ -174,6 +176,15 @@ DATA lecture_matrix(DATA data)
         fclose(fichier);
     }
     free(f_delta);
+    
+
+        printf("\ndelta : \n");
+        for (int i = 0; i < data.nbr_lignes; ++i)
+        {
+           printf(" %f", i, data.delta[i]);
+        }
+        printf("\n");
+
     return data;
 } 
 
@@ -191,14 +202,15 @@ void afficher_Data(DATA les_donnees){
     printf("***********************LES ARCS****************************\n");
     printf("\n\n");
     LIST tmp;
-        for(int i=1 ; i <= les_donnees.nbr_lignes; i++){
-            tmp = les_donnees.les_listes[i];
-            while(tmp != NULL){
-                printf(" (%d , %d , %f) ",tmp->origin,i+1,tmp->cout);
-                tmp = tmp->suivant;
-            }
-            printf("\n");
+    for(int i=0 ; i < les_donnees.nbr_lignes; i++)
+    {
+        tmp = les_donnees.les_listes[i];
+        while(tmp != NULL){
+            printf(" (%d , %d , %f) ",tmp->origin+1,i+1,tmp->cout);
+            tmp = tmp->suivant;
         }
+        printf("\n");
+    }
 }
 
 
@@ -450,8 +462,12 @@ float* calculYK(DATA data,float* y_k)
         vect_y[i] = minimum(y_k[i],res1);
     }
 
-    return vect_y;
+    for (int i = 0; i < data.nbr_lignes; ++i)
+    {
+        printf("y_k %f res %f\n", y_k[i], res1);
+    }
     
+    return vect_y;
 }
 
 void page_rank_nabla(DATA data)
@@ -464,9 +480,12 @@ void page_rank_nabla(DATA data)
         x_k[i] = data.nabla[i];
         y_k[i] = data.delta[i];
     }
-    int co = 0;
+    int co = 0;     int iter = 0;
     while (!Convergence(data,x_k,y_k))
     {
+        if(iter)    /**/
+            break;
+
         x_k = calculXK(data,x_k);
         y_k = calculYK(data,y_k);
 
@@ -487,6 +506,7 @@ void page_rank_nabla(DATA data)
             printf("\n\n");
         }
         
+        iter++;
         co ++;
     }
     

@@ -2,7 +2,6 @@
 
 int main ()
 {
-
     DATA les_donnees;
 
     les_donnees = init_DATA(les_donnees);
@@ -11,7 +10,7 @@ int main ()
 
     les_donnees.pi = calloc(les_donnees.nbr_lignes,sizeof(double));
 
-    //afficher_data(les_donnees);
+    afficher_Data(les_donnees);
 
     init_vecteur(1.0/(les_donnees.nbr_lignes * 1.0),les_donnees.pi,les_donnees.nbr_lignes);
     
