@@ -1,4 +1,10 @@
 #include "page_rank.c"
+#include <time.h>
+
+void temps_reel(struct timespec* t)
+{
+    clock_gettime(CLOCK_MONOTONIC_RAW, t);
+}
 
 int main ()
 {
@@ -33,7 +39,15 @@ int main ()
     }
         printf("\n");*/
 
+    struct timespec temps_debut = {0,0}, temps_fin = {0,0};
+    temps_reel(&temps_debut);
+
     page_rank_nabla(les_donnees);
+
+    temps_reel(&temps_fin);
+
+    printf("temps sec %ld \n", temps_fin.tv_sec - temps_debut.tv_sec);
+    printf("temps nanosec %f \n", temps_fin.tv_nsec - temps_debut.tv_nsec);
     
 
 return 0;
