@@ -33,6 +33,7 @@ LIST ajouter_element(LIST l,int origin,float cout)
         l = tmp;
 
     }
+    
 
     return l;
 }
@@ -87,6 +88,23 @@ DATA init_F(DATA data)
     
 }
 
+// initialiser le vecteur F
+DATA init_pi(DATA data)
+{
+    data.pi = malloc(sizeof(int)* data.nbr_lignes);
+    if (data.pi == NULL){
+        exit(EXIT_FAILURE);
+    }
+
+    for (size_t i = 0; i < data.nbr_lignes; i++)
+    {
+        data.pi[i] = 1.0/(data.nbr_lignes * 1.0);
+    }
+
+    return data;
+    
+}
+
 // initialiser les listes
 DATA init_les_listes(DATA data)
 {
@@ -122,8 +140,7 @@ DATA lecture_matrix(DATA data)
         
         fscanf(fichier, "%d", &data.nbr_lignes); // récuperer le nombre de sommets
         fscanf(fichier, "%d", &data.nbr_arcs); // récupérer le nombre d'arcs
-        printf("  le nbre de lignes : %d\nle nombre de d'arcs : %d  \n",data.nbr_lignes,data.nbr_arcs);
-        
+        printf("NOMBRE DE LIGNE : %d \n NOMBRE D'ARC : %d\n",data.nbr_lignes,data.nbr_arcs);
         f_delta = malloc(sizeof(int)*data.nbr_lignes);
         if (f_delta == NULL)
         {
@@ -131,6 +148,7 @@ DATA lecture_matrix(DATA data)
         }
 
         data = init_F(data);
+        data = init_pi(data);
         data = init_les_listes(data);
         data = init_nabla(data);
         data = init_delta(data);
@@ -140,10 +158,6 @@ DATA lecture_matrix(DATA data)
             
              fscanf(fichier, "%d", &origin); // récuperer la ligne
              fscanf(fichier, "%d", &degre); // récupérer le degré de la ligne
-               //if (i<5)
-               //{
-                    //printf("  origin %d et degre %d  \n",origin,degre);                   
-               //}
                
                 if (degre == 0)
                 {
@@ -153,12 +167,11 @@ DATA lecture_matrix(DATA data)
                 {
                     data.F[i] = 0; // degré sortant NON NULL
                 }
-                //printf("init F \n");
+
             for(int j = 0; j < degre; j++)
             {
                 fscanf(fichier, "%d", &destination);
                 fscanf(fichier, "%f", &cout);
-                 //printf("               destination %d et degre %f  \n",destination,cout);  
                 if (data.delta[destination-1] < cout)
                 {
                     data.delta[destination-1] = cout ; // stocker le max de chaque ligne de la matrice stochastique
@@ -174,8 +187,6 @@ DATA lecture_matrix(DATA data)
             // MAX(G) = MAX(αP) + MAX((α/N)(ft*e)) + MAX((1-α)(et*e))
             data.delta[i] = alpha * data.delta[i] + data.F[f_delta[i]] * (alpha/data.nbr_lignes) + ((1.0-alpha)/data.nbr_lignes);
             
-            //printf("delta %d : %f\n", i, data.delta[i]);
-            
             // Le cas où le degré est NULL 
             if(data.delta[i]<1.0/data.nbr_lignes)
             {
@@ -185,15 +196,6 @@ DATA lecture_matrix(DATA data)
         fclose(fichier);
     }
     free(f_delta);
-    
-
-        printf("\ndelta : \n");
-        for (int i = 0; i < data.nbr_lignes; ++i)
-        {
-            if(i<5)
-                printf(" %f", i, data.delta[i]);
-        }
-        printf("\n");
 
     return data;
 } 
@@ -229,16 +231,10 @@ void afficher_Data(DATA les_donnees){
 // retourne la valeur absolue d'un float
 float valeur_absolue(float x)
 {
-    return (x<0)?(-x):x;
-}
-
-
-
-// initialiser un vecteur plus (vecteur Opi par exemple)
-void init_vecteur(float val,float *vecteur, int taille)
-{
-    for (int i=0; i<taille;i++){
-        vecteur[i] = val;
+    if(x<0){
+        return -x;
+    }else{
+        return x;
     }
 }
 
@@ -322,7 +318,6 @@ float* PG_google (DATA data)
     float constante = (val_1 + (val_2 * resutlat_mult_des_vect) );
     
     for(int i = 0; i < data.nbr_lignes; i++){
-        printf("    terme1[%d] : %f   \n",i,vect_x[i]*alpha);
         vect_x[i] = (vect_x[i] * alpha) + constante; // xG = αxP + [(1 − α)(1/N) + α(1/N)(x*ft)]e (1 ére itération)
     }
     
@@ -330,15 +325,12 @@ float* PG_google (DATA data)
     while (!Convergence(data,vect_x,data.pi)) 
     {   
         
-        //free(data.pi);
-
-        //data.pi=vect_x; 
         
         for (size_t i = 0; i < data.nbr_lignes; i++)
         {
             data.pi[i] = vect_x[i];
         }
-        
+        free(vect_x);
         vect_x = produit_ligne_matrice(data.pi,data);
 
         // xG = αxP + [(1 − α)(1/N) + α(1/N)(x*ft)]e
@@ -369,9 +361,14 @@ void liberer_liste(LIST l){
 
 // retourne le minimum
 double minimum(double x, double y){
-    return (x<y)?(x):y;
+    if((x<y)){
+        return x;
+    }else{
+        return y;
+    }
 }
 
+// retourne la norme d'un vecteur passé en parametre
 float norme_UN(float* vect,DATA data)
 {
     double somme=0.0;
@@ -381,6 +378,7 @@ float norme_UN(float* vect,DATA data)
     }
     return somme;
 }
+
 //liberer DATA
 void liberer_DATA(DATA les_donnees){
     if(les_donnees.delta) free(les_donnees.delta);
@@ -400,16 +398,18 @@ void liberer_DATA(DATA les_donnees){
 
 // retourne le maximum
 double maximum(double x, double y){
-    return (x<y)?(y):x;
+    if((x<y)){
+        return y;
+    }else{
+        return x;
+    }
 }
 
 float* calculXK(DATA data,float* x_k)
 {
     float norme_x = norme_UN(x_k,data);
 
-    // vect_x = xP
-    //float* vect_x = produit_ligne_matrice(x_k,data); 
-    
+    // vect_x = xP 
     float* vect_x = malloc(sizeof(float)*data.nbr_lignes);
     
     // val_1 = (1 − α)(1/N)
@@ -479,12 +479,6 @@ float* calculYK(DATA data,float* y_k)
 
         vect_y[i] = minimum(y_k[i],res1);
     }
-
-    /*for (int i = 0; i < data.nbr_lignes; ++i)
-    {
-        if(i<5)
-            printf("y_k %f res %f\n", y_k[i], res1);
-    }*/
     
     return vect_y;
 }
@@ -494,36 +488,23 @@ void page_rank_nabla(DATA data)
     int n = 1;
     float* x_k =  malloc(sizeof(float)*data.nbr_lignes);
     float* y_k = malloc(sizeof(float)*data.nbr_lignes);
-    
+    float* tmp1;
+    float* tmp2;
+
     for (size_t i = 0; i < data.nbr_lignes; i++)
     {
-        x_k[i] = data.nabla[i];
-        y_k[i] = data.delta[i];
+        x_k[i] = data.nabla[i]; // initialisé le Xk
+        y_k[i] = data.delta[i]; // initialisé le Yk
     }
     int co = 0;    
-    while (!Convergence(data,x_k,y_k))
+    while (!Convergence(data,x_k,y_k)) // Condition d'arret
     {
-        x_k = calculXK(data,x_k);
-        y_k = calculYK(data,y_k);
-
-        if (co < 1)
-        {
-            printf("ITERATION 1 de NABLA PAGE RANK>>>>>>>>>>>>> \n");
-            printf("le x_k : \n");
-            for (size_t i = 0; i < data.nbr_lignes; i++)
-            {   if(i<7)
-                    printf(" %f ",x_k[i]);
-            }
-            printf("\n\n");
-
-            printf("le y_k : \n");
-            for (size_t i = 0; i < data.nbr_lignes; i++)
-            {   if(i<7)
-                   printf(" %f ",y_k[i]);
-            }
-            printf("\n");
-        }
-        
+        tmp1 = x_k;
+        tmp2 = y_k;
+        x_k = calculXK(data,x_k); 
+        y_k = calculYK(data,y_k); 
+        free(tmp1);
+        free(tmp2);
         co++;
         n++;
     }
@@ -542,7 +523,11 @@ void page_rank_nabla(DATA data)
             printf("\n");
 
     printf("\nNbre d'itérations NABLA: %d \n", n);
+
+    free(x_k);
+    free(y_k);
     
 }
+
 
 

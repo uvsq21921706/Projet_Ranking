@@ -3,7 +3,7 @@
 #include "math.h"
 #include "string.h"
 
-#define PATH "/home/user/Téléchargements/Ranking-projet/wb-cs-stanford.txt"
+#define PATH "matrice_test.txt"
 #define alpha 0.85
 #define epsilon 1e-6
 
@@ -32,7 +32,6 @@ struct structure_creuse {
 typedef struct structure_creuse DATA;
 
 
-LIST ajouter_element(LIST l,int origin,float cout);
 
 DATA lecture_matrix(DATA);
 
@@ -43,4 +42,7 @@ void liberer_DATA(DATA les_donnees);
 void afficher_Data(DATA les_donnees);
 
 float* PG_google (DATA data);
+
+void page_rank_nabla(DATA les_donnees);
+
 
